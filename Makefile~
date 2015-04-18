@@ -1,2 +1,0 @@
-ludumdare: main.o groundTileMap.o
-	g++ -o ludumdare main.o groundTileMap.o -lsfml-graphics -lsfml-window -lsfml-system -l Box2D
