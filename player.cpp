@@ -12,6 +12,7 @@ void Player::initialize(
     world = nWorld;
     scale = nScale;
     size = nSize;
+    framesRunning = 0;
 
     // Constants
     moveForce = 20.0f;
@@ -21,7 +22,11 @@ void Player::initialize(
     texMap = nTexture;
     sprite.setTexture(texMap);
     sprite.setOrigin(25, 25);
+    currentRec = IntRect(0,0,size,size);
+    sprite.setTextureRect(currentRec);
     setPosition(startPosition);
+
+    state = STANDING;
 
     // Setup body physics
     b2BodyDef bodyDef;
@@ -49,12 +54,35 @@ void Player::update() {
     setPosition(newPlayerPosition.x * scale
                 , newPlayerPosition.y * scale);
     setRotation(angle * toDegreesMultiple);
+
+    b2Vec2 linearVelocity = body->GetLinearVelocity();
+    float speed = b2Vec2(linearVelocity.x
+                         , linearVelocity.y)
+        .Normalize();
+    if (speed < 0.5) {
+        state = STANDING;
+    } else {
+        state = RUNNING;
+    }
+
+    if (state == STANDING) {
+        currentRec = IntRect(0,0,50,50);
+    } else {
+        if ((int) (framesRunning)
+            % 2 == 0) {
+            currentRec = IntRect(50,0,50,50);
+        } else {
+            currentRec = IntRect(100,0,50,50);
+        }
+        framesRunning += (speed / 80);
+    }
+    sprite.setTextureRect(currentRec);
 }
 
 
 void Player::move(bool forward) {
     float directionMultiplier =
-        forward ? 1 : -1;
+        forward ? 0.5 : -1;
     b2Vec2 force = rotateVec(
         b2Vec2(0, directionMultiplier
             * moveForce)

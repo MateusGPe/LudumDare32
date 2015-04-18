@@ -22,8 +22,8 @@ groundTileMap tileMap;
 b2Vec2 gravity(0.0f, 0.0f);
 b2World world(gravity);
 
-Vector2f startPosition = Vector2f(200
-                                 ,200);
+Vector2f startPosition = Vector2f(100
+                                 ,100);
 
 Player player;
 
@@ -99,5 +99,5 @@ void draw(RenderWindow* window) {
 
 void loadSprites() {
     spritesMap.loadFromFile("sprites/spriteMap1.png");
-    playerSprite.loadFromFile("sprites/player1.png");
+    playerSprite.loadFromFile("sprites/player2.png");
 }
