@@ -1,0 +1,111 @@
+#include <SFML/Graphics.hpp>
+#include <Box2D/Box2D.h>
+#include "groundTileMap.h"
+
+#define SCALE 50
+
+using namespace sf;
+
+void handleEvents(RenderWindow* window);
+void simulatePhysics(RenderWindow* window);
+void update(RenderWindow* window);
+void draw(RenderWindow* window);
+
+void loadSprites();
+void setupPlayerBody();
+
+Texture spritesMap;
+
+groundTileMap tileMap;
+RectangleShape player(Vector2f(50,50));
+b2Body* playerBody;
+
+b2Vec2 gravity(0.0f, 0.0f);
+b2World world(gravity);
+
+float box2DTimeStep = 1.0f / 60.0f;
+int velocityIterations = 8
+    , positionIterations = 3;
+
+float playerStartX = 70, playerStartY = 120;
+
+int main() {
+    RenderWindow window(VideoMode(500,500), "Ludum Dare");
+    window.setVerticalSyncEnabled(true);
+
+    loadSprites();
+
+    tileMap.genGroundTileMap("maps/test_map_1.pgm", spritesMap
+                             , 50, 50, 4, &world, SCALE);
+
+    player.setFillColor(sf::Color(50,200,30));
+    player.setPosition(Vector2f(playerStartX
+                                , playerStartY));
+    player.setOrigin(25, 25);
+
+    setupPlayerBody();
+    
+    while(window.isOpen()) {
+        handleEvents(&window);
+        simulatePhysics(&window);
+        playerBody->ApplyForce(b2Vec2(1,-1)
+                               , b2Vec2(0,0), true);
+        update(&window);
+        draw(&window);
+    }
+}
+
+void handleEvents(RenderWindow* window) {
+    Event event;
+    while(window->pollEvent(event)) {
+        if (event.type == Event::Closed) {
+            window->close();
+        }
+    }
+}
+
+void simulatePhysics(RenderWindow* window) {
+    world.Step(box2DTimeStep, velocityIterations
+               , positionIterations);
+    world.ClearForces();
+}
+
+void update(RenderWindow* window) {
+    b2Vec2 newPlayerPosition = playerBody
+        ->GetPosition();
+    float angle = playerBody->GetAngle();
+    player.setPosition(newPlayerPosition.x * SCALE
+                       , newPlayerPosition.y * SCALE);
+    player.setRotation(angle * 57.2957795131f);
+}
+
+void draw(RenderWindow* window) {
+    window->clear(sf::Color(120,170,10));
+    window->draw(tileMap);
+    window->draw(player);
+    window->display();
+}
+
+void loadSprites() {
+    spritesMap.loadFromFile("sprites/spriteMap1.png");
+}
+
+void setupPlayerBody() {
+    b2BodyDef playerBodyDef;
+    playerBodyDef.type = b2_dynamicBody;
+    playerBodyDef.position.Set(playerStartX / SCALE
+                            , playerStartY / SCALE);
+    playerBodyDef.linearDamping = 0.5f;
+    playerBodyDef.angularDamping = 0.5f;
+    playerBody = world.CreateBody(&playerBodyDef);
+
+    b2PolygonShape playerBox;
+    playerBox.SetAsBox(50.0f / (2 * SCALE)
+                       , 50.0f / (2 * SCALE));
+    b2FixtureDef playerFixtureDef;
+    playerFixtureDef.shape = &playerBox;
+    playerFixtureDef.density = 1.0f;
+    playerFixtureDef.friction = 1.0f;
+
+    playerBody->CreateFixture(&playerFixtureDef);
+}
