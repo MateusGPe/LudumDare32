@@ -5,22 +5,19 @@
 
 using namespace sf;
 
-/* class Bullet : public Drawable */
-/*       , public Transformable { */
-/* public: */
-/*     void initialize(Vector2f startPosition */
-/*                     , Vector2f startSpeed */
-/*                     , b2World* world */
-/*                     , Texture texture */
-/*                     , int nScale); */
-/*     void update(); */
-/* private: */
-/*     int scale; */
-/*     b2Body* body; */
-/*     Sprite sprite; */
-/*     virtual void draw(RenderTarget& target */
-/*                       , RenderStates states); */
-/* }; */
+class Bullet {
+public:
+    void start();
+    void initialize(Vector2f startPosition
+                    , Vector2f startSpeed);
+    void update();
+    Vector2f getPosition();
+    void setPosition(Vector2f nPosition);
+    void setSpeed(Vector2f nSpeed);
+private:
+    Vector2f position;
+    Vector2f speed;
+};
 
 class Enemy : public Drawable
             , public Transformable {

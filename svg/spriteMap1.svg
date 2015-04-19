@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg4036"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   width="200"
+   height="50"
+   sodipodi:docname="spriteMap1.svg"
+   inkscape:export-filename="/home/jm/Documents/programmeren/cpp/sfml/ludumdare/sprites/spriteMap2.png"
+   inkscape:export-xdpi="45"
+   inkscape:export-ydpi="45">
+  <metadata
+     id="metadata4042">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs4040" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1916"
+     inkscape:window-height="1062"
+     id="namedview4038"
+     showgrid="false"
+     inkscape:zoom="3.55"
+     inkscape:cx="49.746377"
+     inkscape:cy="-21.019115"
+     inkscape:window-x="0"
+     inkscape:window-y="14"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg4036" />
+  <rect
+     style="fill:#275d38;fill-opacity:1;stroke:none"
+     id="rect4048"
+     width="50"
+     height="50"
+     x="0"
+     y="8.8817842e-16" />
+  <rect
+     style="fill:#1e2223;fill-opacity:1;stroke:none"
+     id="rect4048-7"
+     width="50"
+     height="50"
+     x="50"
+     y="0"
+     inkscape:export-filename="/home/jm/Documents/programmeren/cpp/sfml/ludumdare/sprites/rect4048-7.png"
+     inkscape:export-xdpi="90"
+     inkscape:export-ydpi="90" />
+  <rect
+     style="fill:#e70000;fill-opacity:1;stroke:none"
+     id="rect4048-7-1"
+     width="50"
+     height="50"
+     x="100"
+     y="0" />
+</svg>

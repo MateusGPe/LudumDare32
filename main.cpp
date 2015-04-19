@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <math.h>
 #include <iostream>
+#include <time.h>
+#include <stdlib.h>
 
 #define SCALE 50
 
@@ -35,12 +37,18 @@ void update(RenderWindow* window);
 void draw(RenderWindow* window);
 
 void detectCollision(Enemy enemy, int index);
+void checkBulletCollisions();
+void playerHit();
 void loadSprites();
+Vector2f normalize(Vector2f source);
+void shoot(Vector2f position, Vector2f speed);
 
 Texture spritesMap, playerSprite
                   , chairTexture;
 Texture enemyTexture, bulletTexture;
 Sprite enemy;
+
+RenderWindow* rWindow;
 
 groundTileMap tileMap;
 
@@ -60,9 +68,29 @@ float box2DTimeStep = 1.0f / 60.0f;
 int velocityIterations = 8
     , positionIterations = 3;
 
+
+// Bullets
+int playerLifes = 5;
+
+float bulletSpeed = 9.0f;
+int reloadFrames = 100;
+int bulletsPerEnemy = 10;
+int bulletSize = 8;
+
+int currentIndexInBullets = 0;
+int totalBullets;
+
+RectangleShape bullet(Vector2f(bulletSize, bulletSize));
+
+std::vector<Bullet> bullets;
+std::vector<int> timeTillShoot;
+
 int main() {
     RenderWindow window(VideoMode(50 * 20, 50 * 20), "Float");
     window.setVerticalSyncEnabled(true);
+srand(time(NULL));
+ 
+    rWindow = &window;
 
     loadSprites();
 
@@ -77,9 +105,22 @@ int main() {
     chair.initialize(chairTexture
                      , &player);
 
-    enemyLifes.resize(tileMap.getEnemys().size()
+    int enemys = tileMap.getEnemys().size();
+    enemyLifes.resize(enemys
                       , 0);
+    totalBullets = enemys * bulletsPerEnemy;
+    bullets.resize(totalBullets);
 
+    bullet.setFillColor(Color::Red);
+
+    for (int i = 0; i < totalBullets; i++) {
+        bullets[i].start();
+    }
+
+    timeTillShoot.resize(enemys, reloadFrames);
+    for (int i = 0; i < enemys; i++) {
+timeTillShoot[i] += rand() % 200 - 100;
+    }
 
     //Debug
     rect.setFillColor(Color::Red);
@@ -120,7 +161,31 @@ void update(RenderWindow* window) {
             detectCollision(enemys[i], i);
         }
     }
+    for (int i = 0; i < totalBullets; i++) {
+        bullets[i].update();
+    }
+    checkBulletCollisions();
     rect.setPosition(chair.getHitPosition());
+
+    // Shoot bullets
+    for (int i = 0; i < enemys.size(); i++) {
+        if (timeTillShoot[i] < 0 && enemyLifes[i] >= 0) {
+            timeTillShoot[i] = reloadFrames + (rand() % 200)
+                - 100;
+            // Shoot
+            Vector2f startPos = enemys[i].getPosition();
+            startPos += Vector2f(25,25);
+            Vector2f endPos = player.getPosition();
+            Vector2f direction = endPos - startPos;
+            direction += Vector2f((float) (rand() % 100) / 5000
+                ,(float) (rand() % 100) / 5000); 
+            Vector2f norm = normalize(direction);
+            Vector2f speed = norm * bulletSpeed;
+            shoot(startPos, speed);
+        } else {
+            timeTillShoot[i]--;
+        }
+    }
 }
 
 void handleInput(RenderWindow* window) {
@@ -155,6 +220,11 @@ void draw(RenderWindow* window) {
         }
     }
     window->draw(player);
+    // Draw bullets
+    for (int i = 0; i < totalBullets; i++) {
+        bullet.setPosition(bullets[i].getPosition());
+        window->draw(bullet);
+    }
     window->draw(chair);
     // window->draw(rect);
     window->display();
@@ -168,9 +238,10 @@ void detectCollision(Enemy enemy, int index) {
                                 , enemyPos.y
                                 , enemyPos.x + 50
                                 , enemyPos.y + 50);
-    enemyPos += Vector2f(25,25);
-    float enemyRadius = 15;
-    Vector2f dif = chairPos - enemyPos;
+    Vector2f centerEnemyPos = Vector2f(enemyPos.x + 25
+                                       , enemyPos.y + 25);
+    float enemyRadius = 25;
+    Vector2f dif = chairPos - centerEnemyPos;
     float distance = sqrt(dif.x * dif.x
                           + dif.y * dif.y);
     if (distance < chairRadius + enemyRadius
@@ -180,6 +251,55 @@ void detectCollision(Enemy enemy, int index) {
             enemy.destroy();
         }
     }
+}
+
+void shoot(Vector2f position
+           , Vector2f speed) {
+    bullets[currentIndexInBullets++].initialize(position
+                                                , speed);
+    if (currentIndexInBullets == totalBullets) {
+        currentIndexInBullets = 0;
+    }
+}
+
+void checkBulletCollisions() {
+    for (int i = 0; i < totalBullets; i++) {
+        Vector2f bulletPos = bullets[i].getPosition();
+        IntRect bulletRect = IntRect(bulletPos.x
+                                     - (bulletSize / 2)
+                                     , bulletPos.y
+                                     - (bulletSize / 2)
+                                     , bulletSize
+                                     , bulletSize);
+        Vector2f playerPos = player.getPosition();
+        IntRect playerRect = IntRect(playerPos.x
+                                     - 25
+                                     , playerPos.y
+                                     - 25
+                                     , 50
+                                     , 50);
+        if (bulletRect.intersects(playerRect)) {
+            playerHit();
+            bullets[i].setPosition(Vector2f(-100,-100));
+            bullets[i].setSpeed(Vector2f(0,0));
+        }
+    }
+}
+
+void playerHit() {
+    playerLifes--;
+    if (playerLifes == 0) {
+        rWindow->close();
+    }
+}
+
+Vector2f normalize(Vector2f source)
+{
+    float length = sqrt((source.x * source.x) + (source.y * source.y));
+    if (length != 0)
+        return Vector2f(source.x / length, source.y / length);
+    else
+        return source;
 }
 
 void loadSprites() {

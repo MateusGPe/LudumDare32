@@ -67,6 +67,7 @@ void Enemy::update() {
 
 void Enemy::hit() {
 
+    std::cout << lifes-- << "\n";
 }
 
 bool Enemy::isAlive() {
@@ -84,4 +85,31 @@ void Enemy::draw(RenderTarget& target
         states.texture = &texture;
         target.draw(sprite, states);
     }
+}
+
+void Bullet::start() {
+    position = Vector2f(-100,-100);
+    speed = Vector2f(0,0);
+}
+
+void Bullet::initialize(Vector2f startPosition
+                        , Vector2f startSpeed) {
+    position = startPosition;
+    speed = startSpeed;
+}
+
+void Bullet::update() {
+    position += speed;
+}
+
+Vector2f Bullet::getPosition() {
+    return position;
+}
+
+void Bullet::setPosition(Vector2f nPosition) {
+    position = nPosition;
+}
+
+void Bullet::setSpeed(Vector2f nSpeed) {
+    speed = nSpeed;
 }
