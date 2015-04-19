@@ -33,7 +33,8 @@ void draw(RenderWindow* window);
 
 void loadSprites();
 
-Texture spritesMap, playerSprite;
+Texture spritesMap, playerSprite
+                  , chairTexture;
 
 groundTileMap tileMap;
 
@@ -44,6 +45,7 @@ Vector2f startPosition = Vector2f(100
                                  ,100);
 
 Player player;
+Chair chair;
 
 float box2DTimeStep = 1.0f / 60.0f;
 int velocityIterations = 8
@@ -55,10 +57,13 @@ int main() {
 
     loadSprites();
 
-    tileMap.genGroundTileMap("maps/test_map_2.pgm", spritesMap
+    tileMap.genGroundTileMap("maps/test_map_1.pgm", spritesMap
                              , 50, 50, 4, &world, SCALE);
     player.initialize(&world, startPosition, SCALE
-                      , 50, playerSprite);
+                      , 50, playerSprite
+                      , chairTexture);
+    chair.initialize(chairTexture
+                     , &player);
 
     while(window.isOpen()) {
         handleEvents(&window);
@@ -86,6 +91,7 @@ void simulatePhysics(RenderWindow* window) {
 
 void update(RenderWindow* window) {
     player.update();
+    chair.update();
 }
 
 void handleInput(RenderWindow* window) {
@@ -112,10 +118,12 @@ void draw(RenderWindow* window) {
     window->clear(sf::Color(120,170,10));
     window->draw(tileMap);
     window->draw(player);
+    window->draw(chair);
     window->display();
 }
 
 void loadSprites() {
-    spritesMap.loadFromFile("sprites/spriteMap1.png");
+    spritesMap.loadFromFile("sprites/spriteMap2.png");
     playerSprite.loadFromFile("sprites/player2.png");
+    chairTexture.loadFromFile("sprites/chair3.png");
 }

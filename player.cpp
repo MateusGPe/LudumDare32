@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "player.h"
 #include <SFML/Graphics.hpp>
 #include <Box2D/Box2D.h>
+#include <iostream>
 
 using namespace sf;
 
@@ -26,10 +27,12 @@ void Player::initialize(
     b2World* nWorld
     , Vector2f startPosition
     , int nScale, int nSize
-    , Texture nTexture) {
+    , Texture nTexture
+    , Texture nChairTexture) {
     world = nWorld;
     scale = nScale;
     size = nSize;
+    // chairTexture = nChairTexture;
     framesRunning = 0;
 
     // Constants
@@ -43,6 +46,10 @@ void Player::initialize(
     currentRec = IntRect(0,0,size,size);
     sprite.setTextureRect(currentRec);
     setPosition(startPosition);
+
+    // // Setup chair
+    // chairSprite.setTexture(nChairTexture);
+    // chairSprite.setOrigin(25,50);
 
     state = STANDING;
 
@@ -95,6 +102,15 @@ void Player::update() {
         framesRunning += (speed / 80);
     }
     sprite.setTextureRect(currentRec);
+
+    // Chair position
+    // b2Vec2 chairPosition = rotateVec(b2Vec2(0, -75)
+    //                                  , angle);
+    // chairPosition += b2Vec2(newPlayerPosition.x * scale
+    //                         , newPlayerPosition.y * scale);
+    // chairSprite.setPosition(chairPosition.x
+    //                         , chairPosition.y);
+    // chairSprite.setRotation(angle * toDegreesMultiple);
 }
 
 
@@ -128,4 +144,44 @@ b2Vec2 Player::rotateVec(b2Vec2 vector, float radians) {
     float y = vector.x * sin(radians)
         + vector.y * cos(radians);
     return b2Vec2(x, y);
+}
+
+Vector2f rotateVec(Vector2f vector, float radians) {
+    float x = vector.x * cos(radians)
+        - vector.y * sin(radians);
+    float y = vector.x * sin(radians)
+        + vector.y * cos(radians);
+    return Vector2f(x, y);
+}
+
+void Chair::initialize(Texture chairTexture
+                       , Player* nPlayer) {
+    texture = chairTexture;
+    sprite.setTexture(texture);
+    sprite.setOrigin(25,50);
+    sprite.setTextureRect(IntRect(50,0,50,100));
+    player = nPlayer;
+}
+
+void Chair::update() {
+    Vector2f playerPosition = player->getPosition();
+    float playerRotation = player->getRotation();
+    Vector2f myPos = rotateVec(Vector2f(0, -65),
+                               playerRotation
+                               * degreesToRadiansMultiple);
+    myPos += playerPosition;
+    setPosition(myPos);
+    setRotation(playerRotation);
+
+    if (Keyboard::isKeyPressed(Keyboard::Space)) {
+        sprite.setTextureRect(IntRect(0,0,50,100));
+    } else {
+        sprite.setTextureRect(IntRect(50,0,50,100));
+    }
+}
+
+void Chair::draw(RenderTarget& target
+                  , RenderStates states) const {
+    states.transform *= getTransform();
+    target.draw(sprite, states);
 }

@@ -31,7 +31,8 @@ public:
     void initialize(b2World* nWorld
                     , Vector2f startPosition
                     , int nScale, int nSize
-                    , Texture nTexture);
+                    , Texture nTexture
+                    , Texture nChairTexture);
     void update();
     void move(bool forward);
     void turn(bool left);
@@ -48,6 +49,20 @@ private:
     const static float toDegreesMultiple = 57.2957795131;
 
     virtual void draw(RenderTarget& target, RenderStates states) const;
-
     b2Vec2 rotateVec(b2Vec2 vector, float radians);
+};
+
+class Chair : public Drawable, public Transformable {
+public:
+    void initialize(Texture chairTexture
+                    , Player* nPlayer);
+    void update();
+private:
+    Texture texture;
+    Sprite sprite;
+    Player* player;
+    virtual void draw(RenderTarget& target
+                      , RenderStates states) const;
+    const static float degreesToRadiansMultiple
+        = 0.01745329251;
 };
