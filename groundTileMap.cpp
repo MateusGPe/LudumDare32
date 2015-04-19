@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "groundTileMap.h"
+#include "enemy.h"
 #include <SFML/Graphics.hpp>
 #include <Box2D/Box2D.h>
 #include <fstream>
@@ -28,12 +29,15 @@ using namespace sf;
 void groundTileMap::genGroundTileMap (const char* filename, Texture nTexture
                                       , int tilesW, int tilesH
                                       , int textureTileGridWidth
-                                      , b2World *world, int nScale)
+                                      , b2World *world, int nScale
+                                      , Texture nEnemyTexture
+                                      , Texture bulletTexture)
 {
     texture = nTexture;
     tilesWidth = tilesW;
     tilesHeight = tilesH;
     SCALE = nScale;
+    enemyTexture = nEnemyTexture;
     std::ifstream bitmap(filename);
     char buf[10];
     bitmap >> buf;
@@ -58,6 +62,17 @@ void groundTileMap::genGroundTileMap (const char* filename, Texture nTexture
                                // of the corresponding pixel
             
             std::cout << getDisplayChar(tileNum) << " ";
+            if (tileNum == 2) { // Enemy
+                Enemy enemy;
+                enemy.initialize(Vector2f(x * tilesWidth
+                                          , y * tilesHeight)
+                                 , enemyTexture
+                                 , bulletTexture
+                                 , world
+                                 , SCALE);
+                enemys.push_back(enemy);
+                tileNum = 0;
+            }
             
             int cornerTextureX = (tileNum % textureTileGridWidth)
                 * tilesWidth
@@ -125,6 +140,13 @@ void groundTileMap::draw(RenderTarget& target, RenderStates states) const
     states.transform *= getTransform();
     states.texture = &texture;
     target.draw(vertices, states);
+    // for (int i = 0; i < enemys.size(); i++) {
+    //     target.draw(enemys[i]);
+    // }
+}
+
+std::vector<Enemy> groundTileMap::getEnemys() {
+    return enemys;
 }
 
 bool isSolid(int tileNum)
@@ -139,6 +161,8 @@ char getDisplayChar(int tileNum)
         return '.';
     case 1:
         return 'X';
+    case 2:
+        return 'E';
     default:
         return ' ';
     }

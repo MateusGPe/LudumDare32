@@ -166,7 +166,7 @@ void Chair::initialize(Texture chairTexture
 void Chair::update() {
     Vector2f playerPosition = player->getPosition();
     float playerRotation = player->getRotation();
-    Vector2f myPos = rotateVec(Vector2f(0, -65),
+    Vector2f myPos = rotateVec(Vector2f(0, -60),
                                playerRotation
                                * degreesToRadiansMultiple);
     myPos += playerPosition;
@@ -174,10 +174,25 @@ void Chair::update() {
     setRotation(playerRotation);
 
     if (Keyboard::isKeyPressed(Keyboard::Space)) {
+        hitting = true;
         sprite.setTextureRect(IntRect(0,0,50,100));
     } else {
+        hitting = false;
         sprite.setTextureRect(IntRect(50,0,50,100));
     }
+}
+
+Vector2f Chair::getHitPosition() {
+    Vector2f centerPos = getPosition();
+    Vector2f modify = rotateVec(Vector2f(0, -25),
+                           getRotation()
+                           * degreesToRadiansMultiple);
+    return Vector2f(centerPos.x + modify.x
+                    , centerPos.y + modify.y);
+}
+
+int Chair::getRadius() {
+    return 30;
 }
 
 void Chair::draw(RenderTarget& target

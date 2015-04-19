@@ -20,6 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <Box2D/Box2D.h>
 #include "groundTileMap.h"
 #include "player.h"
+#include <vector>
+#include <math.h>
+#include <iostream>
 
 #define SCALE 50
 
@@ -31,18 +34,24 @@ void handleInput(RenderWindow* window);
 void update(RenderWindow* window);
 void draw(RenderWindow* window);
 
+void detectCollision(Enemy enemy, int index);
 void loadSprites();
 
 Texture spritesMap, playerSprite
                   , chairTexture;
+Texture enemyTexture, bulletTexture;
+Sprite enemy;
 
 groundTileMap tileMap;
 
 b2Vec2 gravity(0.0f, 0.0f);
 b2World world(gravity);
 
+CircleShape rect(30);
+
 Vector2f startPosition = Vector2f(100
                                  ,100);
+std::vector<int> enemyLifes;
 
 Player player;
 Chair chair;
@@ -57,13 +66,24 @@ int main() {
 
     loadSprites();
 
-    tileMap.genGroundTileMap("maps/test_map_1.pgm", spritesMap
-                             , 50, 50, 4, &world, SCALE);
+    enemy.setTexture(enemyTexture);
+
+    tileMap.genGroundTileMap("maps/test_map_3.pgm", spritesMap
+                             , 25, 25, 4, &world, SCALE
+                             , enemyTexture, bulletTexture);
     player.initialize(&world, startPosition, SCALE
                       , 50, playerSprite
                       , chairTexture);
     chair.initialize(chairTexture
                      , &player);
+
+    enemyLifes.resize(tileMap.getEnemys().size()
+                      , 0);
+
+
+    //Debug
+    rect.setFillColor(Color::Red);
+    rect.setOrigin(30,30);
 
     while(window.isOpen()) {
         handleEvents(&window);
@@ -91,7 +111,16 @@ void simulatePhysics(RenderWindow* window) {
 
 void update(RenderWindow* window) {
     player.update();
-    chair.update();
+    chair.update(); 
+    std::vector<Enemy> enemys = tileMap.getEnemys();
+    for (int i = 0; i < enemys.size(); i++) {
+        enemys[i].update();
+        bool alive = enemyLifes[i] >= 0;
+        if (alive) {
+            detectCollision(enemys[i], i);
+        }
+    }
+    rect.setPosition(chair.getHitPosition());
 }
 
 void handleInput(RenderWindow* window) {
@@ -117,13 +146,45 @@ void handleInput(RenderWindow* window) {
 void draw(RenderWindow* window) {
     window->clear(sf::Color(120,170,10));
     window->draw(tileMap);
+    std::vector<Enemy> enemys = tileMap.getEnemys();
+    for (int i = 0; i < enemys.size(); i++) {
+        bool alive = enemyLifes[i] >= 0;
+        if (alive) {
+            enemy.setPosition(enemys[i].getPosition());
+            window->draw(enemy);
+        }
+    }
     window->draw(player);
     window->draw(chair);
+    // window->draw(rect);
     window->display();
+}
+
+void detectCollision(Enemy enemy, int index) {
+    Vector2f chairPos = chair.getHitPosition();
+    float chairRadius = chair.getRadius();
+    Vector2f enemyPos = enemy.getPosition();
+    IntRect enemyRect = IntRect(enemyPos.x
+                                , enemyPos.y
+                                , enemyPos.x + 50
+                                , enemyPos.y + 50);
+    enemyPos += Vector2f(25,25);
+    float enemyRadius = 15;
+    Vector2f dif = chairPos - enemyPos;
+    float distance = sqrt(dif.x * dif.x
+                          + dif.y * dif.y);
+    if (distance < chairRadius + enemyRadius
+        && chair.hitting) {
+        enemyLifes[index]--;
+        if (enemyLifes[index] < 0) {
+            enemy.destroy();
+        }
+    }
 }
 
 void loadSprites() {
     spritesMap.loadFromFile("sprites/spriteMap2.png");
-    playerSprite.loadFromFile("sprites/player2.png");
-    chairTexture.loadFromFile("sprites/chair3.png");
+    playerSprite.loadFromFile("sprites/player5.png");
+    chairTexture.loadFromFile("sprites/chair5.png");
+    enemyTexture.loadFromFile("sprites/enemy1.png");
 }

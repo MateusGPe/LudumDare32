@@ -57,6 +57,10 @@ public:
     void initialize(Texture chairTexture
                     , Player* nPlayer);
     void update();
+
+    Vector2f getHitPosition();
+    int getRadius();
+    bool hitting;
 private:
     Texture texture;
     Sprite sprite;

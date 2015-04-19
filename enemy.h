@@ -33,6 +33,7 @@ public:
     void update();
     void hit();
     bool isAlive();
+    void destroy();
 private:
     int lifes;
     bool alive;

@@ -66,11 +66,15 @@ void Enemy::update() {
 }
 
 void Enemy::hit() {
-    std::cout << lifes--;
+
 }
 
 bool Enemy::isAlive() {
     return alive;
+}
+
+void Enemy::destroy() {
+    world->DestroyBody(body);
 }
 
 void Enemy::draw(RenderTarget& target
